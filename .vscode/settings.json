@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "tlist"
+    ],
+    "files.associations": {
+        "gtk.h": "c",
+        "stdint.h": "c",
+        "tlist.h": "c",
+        "task_tree.h": "c",
+        "ui_view_focus.h": "c"
+    }
+}
