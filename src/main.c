@@ -19,6 +19,10 @@ int main(int argc, char* argv[])
     task_tree_tlist_init(&tlist);
     gtk_init();
 
+    for(uint32_t i = 0; i < 40; i++)
+    {
+        task_tree_tlist_task_add(&tlist, task_tree_task_new(names_list[i % 5]));
+    }
 
     GtkApplication* app = gtk_application_new("BismiAllah.BismiAllah.BismiAllah", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(task_tree_ui_view_focus_init), &tlist);
