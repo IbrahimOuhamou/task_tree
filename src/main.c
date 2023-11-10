@@ -19,9 +19,20 @@ int main(int argc, char* argv[])
     task_tree_tlist_init(&tlist);
     gtk_init();
 
-    for(uint32_t i = 0; i < 40; i++)
+    task_tree_tlist_task_add(&tlist, task_tree_task_new("la ilaha illa Allah wa Allah Akbar"));
+    for(uint32_t i = 1; i < 20; i++)
     {
         task_tree_tlist_task_add(&tlist, task_tree_task_new(names_list[i % 5]));
+    }
+
+    for(uint32_t i = 3; i < tlist.size / 2; i++)
+    {
+        task_tree_tlist_task_child_add(&tlist, 0, i);
+    }
+
+    for(uint32_t i = tlist.size / 2; i < tlist.size; i++)
+    {
+        task_tree_tlist_task_parent_add(&tlist, 0, i);
     }
 
     GtkApplication* app = gtk_application_new("BismiAllah.BismiAllah.BismiAllah", G_APPLICATION_FLAGS_NONE);
