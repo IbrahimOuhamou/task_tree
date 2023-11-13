@@ -6,6 +6,10 @@
 GtkWidget* window;
 struct tlist_t* ui_tlist;
 
+//keep it static
+static void task_tree_ui_view_focus_task_name_set(GtkWidget* widget, gpointer new_name);
+static struct task_t* ui_view_focus_task;
+
 int8_t task_tree_ui_view_focus_init(GtkApplication* app, struct tlist_t* tlist)
 {
     /*BismiAllah*/
@@ -22,7 +26,7 @@ int8_t task_tree_ui_view_focus_init(GtkApplication* app, struct tlist_t* tlist)
 
 int8_t task_tree_ui_view_focus_task_select(GtkWidget *widget, struct task_t* task)
 {
-    g_print("BismiAllah: will select task: %u %s %p\n", task->id, task->name, task);
+    ui_view_focus_task = task;
     /*BismiAllah*/
     /*setting up the box that is gonna be the parent of other boxes by the will of Allah*/
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -34,30 +38,51 @@ int8_t task_tree_ui_view_focus_task_select(GtkWidget *widget, struct task_t* tas
     gtk_box_append(GTK_BOX(box), box_parent_tasks);
     gtk_widget_set_halign(box_parent_tasks, GTK_ALIGN_FILL);
 
-    /*for(uint32_t i = 0; i < task->parents_id_list_size; i++)
+    for(uint32_t i = 0; i < task->parents_id_list_size; i++)
     {
-        GtkWidget* button = gtk_button_new_with_label(ui_tlist->data[i]->name);
+        GtkWidget* button = gtk_button_new_with_label(ui_tlist->data[task->parents_id_list[i]]->name);
         g_signal_connect(button, "clicked", G_CALLBACK(task_tree_ui_view_focus_task_select), ui_tlist->data[task->parents_id_list[i]]);
         gtk_box_append(GTK_BOX(box_parent_tasks), button);
-    }*/
+    }
 
     /*BismiAllah*/
     /*setting up the selected task*/
-    GtkWidget* task_button = gtk_button_new_with_label(task->name);
-    gtk_widget_set_halign(task_button, GTK_ALIGN_START);
-    gtk_box_append(GTK_BOX(box), task_button);
+    GtkWidget* box_focus = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_box_append(GTK_BOX(box), box_focus);
 
     /*BismiAllah*/
+    /*setting the text*/
+    GtkWidget* box_task_name = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_append(GTK_BOX(box_focus), box_task_name);
+
+    GtkWidget* text_task_name = gtk_text_new();
+    gtk_text_set_max_length(GTK_TEXT(text_task_name), sizeof(task->name));
+    gtk_text_set_placeholder_text(GTK_TEXT(text_task_name), task->name);
+    gtk_box_append(GTK_BOX(box_task_name), text_task_name);
+
+    GtkWidget* button_task_name_set = gtk_button_new_with_label("set task name");
+    g_signal_connect(button_task_name_set, "clicked", G_CALLBACK(task_tree_ui_view_focus_task_name_set), gtk_text_get_buffer(GTK_TEXT(text_task_name)));
+    gtk_box_append(GTK_BOX(box_task_name), button_task_name_set);
+
+    /*BismiAllah*/
+    /*setting up children tasks*/
     GtkWidget* box_child_tasks = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_append(GTK_BOX(box), box_child_tasks);
     gtk_widget_set_halign(box_child_tasks, GTK_ALIGN_FILL);
 
-    /*for(uint32_t i = 0; i < ui_tlist->data[0]->children_id_list_size; i++)
+    for(uint32_t i = 0; i < task->children_id_list_size; i++)
     {
         GtkWidget* button = gtk_button_new_with_label(ui_tlist->data[task->children_id_list[i]]->name);
         g_signal_connect(button, "clicked", G_CALLBACK(task_tree_ui_view_focus_task_select), ui_tlist->data[task->children_id_list[i]]);
         gtk_box_append(GTK_BOX(box_child_tasks), button);
-    }*/
+    }
 
     return 0;
 }
+
+static void task_tree_ui_view_focus_task_name_set(GtkWidget* widget, gpointer new_name)
+{
+    g_print("set name from: '%s' to: '%s'\n", ui_view_focus_task->name, gtk_entry_buffer_get_text(new_name));
+    memcpy(ui_view_focus_task->name, gtk_entry_buffer_get_text(new_name), sizeof(ui_view_focus_task->name));
+}
+
