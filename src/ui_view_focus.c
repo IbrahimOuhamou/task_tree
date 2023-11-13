@@ -49,7 +49,13 @@ int8_t task_tree_ui_view_focus_task_select(GtkWidget *widget, struct task_t* tas
     /*setting up the selected task*/
     GtkWidget* box_focus = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_box_append(GTK_BOX(box), box_focus);
+    gtk_widget_set_halign(box_focus, GTK_ALIGN_CENTER);
 
+    /*BismiAllah*/
+    /*setting label with task name*/
+    GtkWidget* label_task_name = gtk_label_new(task->name);
+    gtk_box_append(GTK_BOX(box_focus), label_task_name);
+  
     /*BismiAllah*/
     /*setting the text*/
     GtkWidget* box_task_name = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -61,7 +67,7 @@ int8_t task_tree_ui_view_focus_task_select(GtkWidget *widget, struct task_t* tas
     gtk_box_append(GTK_BOX(box_task_name), text_task_name);
 
     GtkWidget* button_task_name_set = gtk_button_new_with_label("set task name");
-    g_signal_connect(button_task_name_set, "clicked", G_CALLBACK(task_tree_ui_view_focus_task_name_set), gtk_text_get_buffer(GTK_TEXT(text_task_name)));
+    g_signal_connect(button_task_name_set, "clicked", G_CALLBACK(task_tree_ui_view_focus_task_name_set), text_task_name);
     gtk_box_append(GTK_BOX(box_task_name), button_task_name_set);
 
     /*BismiAllah*/
@@ -82,7 +88,9 @@ int8_t task_tree_ui_view_focus_task_select(GtkWidget *widget, struct task_t* tas
 
 static void task_tree_ui_view_focus_task_name_set(GtkWidget* widget, gpointer new_name)
 {
-    g_print("set name from: '%s' to: '%s'\n", ui_view_focus_task->name, gtk_entry_buffer_get_text(new_name));
-    memcpy(ui_view_focus_task->name, gtk_entry_buffer_get_text(new_name), sizeof(ui_view_focus_task->name));
+    const char* new_name_buffer = gtk_entry_buffer_get_text(gtk_text_get_buffer(GTK_TEXT(new_name)));
+    g_print("set name from: '%s' to: '%s'\n", ui_view_focus_task->name, new_name_buffer);
+    memcpy(ui_view_focus_task->name, new_name_buffer, sizeof(ui_view_focus_task->name));
+    gtk_entry_buffer_delete_text(gtk_text_get_buffer(GTK_TEXT(new_name)), 0, -1);
 }
 
