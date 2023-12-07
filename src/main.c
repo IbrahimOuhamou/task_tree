@@ -1,8 +1,6 @@
 //بسم الله الرحمن الرحيم
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include <gtk-4.0/gtk/gtk.h>
 
 #include "../include/ui_view_focus.h"
@@ -19,20 +17,24 @@ int main(int argc, char* argv[])
     task_tree_tlist_init(&tlist);
     gtk_init();
 
-    task_tree_tlist_task_add(&tlist, task_tree_task_new("la ilaha illa Allah wa Allah Akbar"));
+    g_print("in the name of Allah: will add the first task\n");
+    task_tree_tlist_add_task(&tlist, task_tree_task_new("la ilaha illa Allah wa Allah Akbar"));
+    g_print("in the name of Allah: will add the 20 tasks\n");
     for(uint32_t i = 1; i < 20; i++)
     {
-        task_tree_tlist_task_add(&tlist, task_tree_task_new(names_list[i % 5]));
+        task_tree_tlist_add_task(&tlist, task_tree_task_new(names_list[i % 5]));
     }
 
+    g_print("in the name of Allah: will add childen to task 1\n");
     for(uint32_t i = 3; i < tlist.size / 2; i++)
     {
-        task_tree_tlist_task_child_add(&tlist, 0, i);
+        task_tree_tlist_task_children_id_list_add_id(&tlist, 0, i);
     }
 
+    g_print("in the name of Allah: will add parents to task 1\n");
     for(uint32_t i = tlist.size / 2; i < tlist.size; i++)
     {
-        task_tree_tlist_task_parent_add(&tlist, 0, i);
+        task_tree_tlist_task_parents_id_list_add_id(&tlist, 0, i);
     }
 
     GtkApplication* app = gtk_application_new("BismiAllah.BismiAllah.BismiAllah", G_APPLICATION_FLAGS_NONE);
