@@ -89,8 +89,7 @@ int8_t task_tree_ui_view_focus_task_select(GtkWidget *widget, struct task_t* tas
 static void task_tree_ui_view_focus_task_name_set(GtkWidget* widget, gpointer new_name)
 {
     const char* new_name_buffer = gtk_entry_buffer_get_text(gtk_text_get_buffer(GTK_TEXT(new_name)));
-    g_print("set name from: '%s' to: '%s'\n", ui_view_focus_task->name, new_name_buffer);
-    memcpy(ui_view_focus_task->name, new_name_buffer, sizeof(ui_view_focus_task->name));
+    task_tree_task_set_name(ui_view_focus_task, new_name);
     gtk_entry_buffer_delete_text(gtk_text_get_buffer(GTK_TEXT(new_name)), 0, -1);
 }
 
