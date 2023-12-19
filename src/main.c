@@ -2,7 +2,7 @@
 
 #include <gtk/gtk.h>
 #include "../include/task_tree.h"
-#include "../include/task_tree_ui.h"
+#include "../include/task_tree_gtk.h"
 
 void activate(GtkApplication* app, gpointer data);
 
@@ -20,7 +20,7 @@ void activate(GtkApplication* app, gpointer data)
     GtkWidget* window = gtk_application_window_new(app);
 
     struct task_t* task =  task_tree_task_new("BismiAllah");
-    GtkWidget* task_widget = task_tree_ui_task_widget(task);
+    GtkWidget* task_widget = task_tree_gtk_task_widget(task);
     gtk_window_set_child(GTK_WINDOW(window), task_widget);
 
     gtk_widget_show(window);
