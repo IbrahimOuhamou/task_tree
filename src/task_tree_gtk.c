@@ -8,7 +8,7 @@
 #include <unistd.h>
 //static bvriables
 static struct task_t* task_tree_static_task;
-static struct tlist_t* task_tree_static_tlist;
+static struct ttree_t* task_tree_static_ttree;
 //end of static variables
 
 //static functions
@@ -74,10 +74,10 @@ static int8_t task_tree_gtk_task_set_name(GtkWidget* button, GtkWidget* name_buf
 
 static int8_t task_tree_gtk_task_set_progress(GtkWidget* button, GtkScale* scale)
 {
-    if (NULL == task_tree_static_tlist){g_print("W {task_tree_static_tlist} in %s is NULL\n", __FILE__);return -1;}
+    if (NULL == task_tree_static_ttree){g_print("W {task_tree_static_ttree} in %s is NULL\n", __FILE__);return -1;}
     if (NULL == task_tree_static_task){return -1;}
 
-    task_tree_tlist_task_set_progress(task_tree_static_tlist, task_tree_static_task->id, (uint8_t)gtk_range_get_value(GTK_RANGE(scale)));
+    task_tree_ttree_task_set_progress(task_tree_static_ttree, task_tree_static_task->id, (uint8_t)gtk_range_get_value(GTK_RANGE(scale)));
     return 0;
 }
 // end of static functions
