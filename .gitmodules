@@ -1,3 +1,3 @@
 [submodule "submodules/task_tree_lib"]
 	path = submodules/task_tree_lib
-	url = https://github.com/IbrahimOuhamou/task_tree_lib
+	url = ../task_tree_lib.git
