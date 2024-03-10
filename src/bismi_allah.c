@@ -85,6 +85,8 @@ int main()
         nk_style_set_font(nk_ctx, &font->handle);
     }
 
+    task_tree_tlist_file_load(&tlist, ".data");
+
     char *task_name_buffer = (char*)malloc(sizeof(tlist.data[0]->name));
     task_name_buffer[0]='\0';
     int task_name_buffer_length = 0;
@@ -145,6 +147,7 @@ int main()
         SDL_RenderPresent(renderer);
     }
 
+    task_tree_tlist_file_save(&tlist, ".data");
     nk_sdl_shutdown();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
