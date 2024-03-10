@@ -1,3 +1,6 @@
 [submodule "submodules/task_tree_lib"]
 	path = submodules/task_tree_lib
 	url = ../task_tree_lib
+[submodule "submodules/Nuklear"]
+	path = submodules/Nuklear
+	url = git@github.com:Immediate-Mode-UI/Nuklear.git
