@@ -122,7 +122,7 @@ int main()
                 if(nk_button_label(nk_ctx, "la ilaha illa Allah") && '\0' != task_name_buffer[0] && sizeof(tlist.data[0]->id) == task_tree_tlist_search_name(&tlist, task_name_buffer))
                 {
                     task_tree_tlist_add_task(&tlist, task_tree_task_new(task_name_buffer));
-                    task_tree_tlist_task_children_id_list_add_id(&tlist, tlist.size - 1, 0);
+                    task_tree_tlist_task_parents_id_list_add_id(&tlist, tlist.size - 1, 0);
                     task_name_buffer[0]='\0';
                 }
             }nk_end(nk_ctx);
