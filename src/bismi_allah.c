@@ -27,6 +27,9 @@
 #include "../submodules/task_tree_lib/include/task_t.h"
 #include "../submodules/task_tree_lib/include/tlist.h"
 
+#define TASK_WIDGET_WIDTH 230
+#define TASK_WIDGET_HEIGHT 250
+
 int main()
 {
     printf("in the name of Allah\n");
@@ -87,9 +90,6 @@ int main()
 
     task_tree_tlist_file_load(&tlist, ".data");
 
-    char *task_name_buffer = (char*)malloc(sizeof(tlist.data[0]->name));
-    task_name_buffer[0]='\0';
-    int task_name_buffer_length = 0;
     int control_panel = 1;
     int running = 1;
     while(running)
@@ -114,17 +114,16 @@ int main()
         {
             if(nk_begin(nk_ctx, "la ilaha illa Allah", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
             {
+                static char task_name_buffer[sizeof(tlist.data[0]->name)] = {'\0'};
                 nk_layout_row_dynamic(nk_ctx, 30, 1);
-                nk_edit_string(nk_ctx, NK_EDIT_SIMPLE, task_name_buffer, &task_name_buffer_length, sizeof(tlist.data[0]->name), nk_filter_default);
+                nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task_name_buffer, sizeof(tlist.data[0]->name), nk_filter_default);
                 
                 nk_layout_row_dynamic(nk_ctx, 30, 1);
                 if(nk_button_label(nk_ctx, "la ilaha illa Allah") && '\0' != task_name_buffer[0] && sizeof(tlist.data[0]->id) == task_tree_tlist_search_name(&tlist, task_name_buffer))
                 {
-                    printf("la ilaha illa Allah\n");
                     task_tree_tlist_add_task(&tlist, task_tree_task_new(task_name_buffer));
-                    task_name_buffer = (char*)malloc(sizeof(tlist.data[0]->name));
+                    task_tree_tlist_task_children_id_list_add_id(&tlist, tlist.size - 1, 0);
                     task_name_buffer[0]='\0';
-                    task_name_buffer_length = 0;
                 }
             }nk_end(nk_ctx);
         }
@@ -132,15 +131,38 @@ int main()
         //show all widgets by the will of Allah
         for(int i = 0; i < tlist.size; i++)
         {
-            if(nk_begin(nk_ctx, tlist.data[i]->name, nk_rect(100, 100, 230, 250), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
+            struct task_t *task = tlist.data[i];
+            static char window_name_buffer[10] = {'\0'};
+            window_name_buffer[0] = '\0';
+            snprintf(window_name_buffer, sizeof(window_name_buffer), "task %d", task->id);
+            if(nk_begin(nk_ctx, window_name_buffer, nk_rect((float)task->pos_x, (float)task->pos_y, TASK_WIDGET_WIDTH, TASK_WIDGET_HEIGHT), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
             {
                 nk_layout_row_dynamic(nk_ctx, 30, 1);
-                nk_label(nk_ctx, tlist.data[i]->name, NK_TEXT_LEFT);
+                nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task->name, sizeof(task->name), nk_filter_default);
+                //progress
+                //add child
+
+                //update the task's pos_x and pos_y
+                struct nk_rect rect = nk_window_get_bounds(nk_ctx);
+                task->pos_x = (uint16_t)rect.x;
+                task->pos_y = (uint16_t)rect.y;
             }nk_end(nk_ctx);
+
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        //draw lines
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        for(int i = 0; i < tlist.size; i++)
+        {
+            struct task_t *task = tlist.data[i];
+            for(uint32_t i = 0; i < task->children_id_list_size; i++)
+            {
+                SDL_RenderDrawLine(renderer, task->pos_x + TASK_WIDGET_WIDTH / 2, task->pos_y + TASK_WIDGET_HEIGHT, tlist.data[task->children_id_list[i]]->pos_x + TASK_WIDGET_WIDTH / 2, tlist.data[task->children_id_list[i]]->pos_y);
+            }
+        }
 
         nk_sdl_render(NK_ANTI_ALIASING_ON);
 
