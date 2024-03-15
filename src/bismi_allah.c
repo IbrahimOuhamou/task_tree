@@ -90,8 +90,9 @@ int main()
 
     task_tree_tlist_file_load(&tlist, ".data");
 
-    int control_panel = 1;
     int running = 1;
+    struct task_t *task_to_add_child_to = NULL;
+    struct task_t *task_to_add_parent_to = NULL;
     while(running)
     {
         SDL_Event event;
@@ -101,32 +102,66 @@ int main()
             switch(event.type)
             {
                 case SDL_QUIT: running = 0; break;
-                case SDL_KEYDOWN:
-                    if(SDL_SCANCODE_P == event.key.keysym.scancode) control_panel = !control_panel;
-                    break;
             }
             nk_sdl_handle_event(&event);
 
         }
         nk_input_end(nk_ctx);
 
-        if(control_panel)
+        //handle input
+        //incha2Allah handle node connections
+        if(nk_input_is_mouse_down(&nk_ctx->input, NK_BUTTON_LEFT))
         {
-            if(nk_begin(nk_ctx, "la ilaha illa Allah", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
+            int selected_a_node = 0;
+            for(uint32_t i = 0; i < tlist.size; i++)
             {
-                static char task_name_buffer[sizeof(tlist.data[0]->name)] = {'\0'};
-                nk_layout_row_dynamic(nk_ctx, 30, 1);
-                nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task_name_buffer, sizeof(tlist.data[0]->name), nk_filter_default);
-                
-                nk_layout_row_dynamic(nk_ctx, 30, 1);
-                if(nk_button_label(nk_ctx, "la ilaha illa Allah") && '\0' != task_name_buffer[0])
+                struct task_t *task = tlist.data[i];
+                int node_x = nk_ctx->input.mouse.pos.x - (task->pos_x + TASK_WIDGET_WIDTH/2);
+                int node_y = nk_ctx->input.mouse.pos.y - task->pos_y + 10;
+                //clicked parents' node
+                if(0 < node_x && node_x < 10 && 0 < node_y && node_y < 10)
                 {
-                    task_tree_tlist_add_task(&tlist, task_tree_task_new(task_name_buffer));
-                    task_tree_tlist_task_parents_id_list_add_id(&tlist, tlist.size - 1, 0);
-                    task_name_buffer[0]='\0';
+                    task_to_add_parent_to = task;
+                    selected_a_node = 1;
+                    break;
                 }
-            }nk_end(nk_ctx);
+                //clicked childrens' node
+                node_y -= 10 + TASK_WIDGET_HEIGHT;
+                if(0 < node_x && node_x < 10 && 0 < node_y && node_y < 10)
+                {
+                    task_to_add_child_to = task;
+                    selected_a_node = 1;
+                    break;
+                }
+            }
+            if(!selected_a_node)
+            {
+                task_to_add_child_to = NULL;
+                task_to_add_parent_to = NULL;
+            }
         }
+
+        //conect parent and child if there both are not NULL
+        if(NULL != task_to_add_parent_to && NULL != task_to_add_child_to)
+        {
+            task_tree_tlist_task_children_id_list_add_id(&tlist, task_to_add_child_to->id, task_to_add_parent_to->id);
+            task_to_add_parent_to = NULL;
+            task_to_add_child_to = NULL;
+        }
+
+        if(nk_begin(nk_ctx, "la ilaha illa Allah", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
+        {
+            static char task_name_buffer[sizeof(tlist.data[0]->name)] = {'\0'};
+            nk_layout_row_dynamic(nk_ctx, 30, 1);
+            nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task_name_buffer, sizeof(tlist.data[0]->name), nk_filter_default);
+            
+            nk_layout_row_dynamic(nk_ctx, 30, 1);
+            if(nk_button_label(nk_ctx, "la ilaha illa Allah") && '\0' != task_name_buffer[0])
+            {
+                task_tree_tlist_add_task(&tlist, task_tree_task_new(task_name_buffer));
+                task_name_buffer[0]='\0';
+            }
+        }nk_end(nk_ctx);
 
         //show all widgets by the will of Allah
         for(int i = 0; i < tlist.size; i++)
@@ -135,7 +170,7 @@ int main()
             static char window_name_buffer[10] = {'\0'};
             window_name_buffer[0] = '\0';
             snprintf(window_name_buffer, sizeof(window_name_buffer), "task %d", task->id);
-            if(nk_begin(nk_ctx, window_name_buffer, nk_rect((float)task->pos_x, (float)task->pos_y, TASK_WIDGET_WIDTH, TASK_WIDGET_HEIGHT), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
+            if(nk_begin(nk_ctx, window_name_buffer, nk_rect((float)task->pos_x, (float)task->pos_y, TASK_WIDGET_WIDTH, TASK_WIDGET_HEIGHT), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
             {
                 nk_layout_row_dynamic(nk_ctx, 30, 1);
                 nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task->name, sizeof(task->name), nk_filter_default);
@@ -173,6 +208,15 @@ int main()
             }
         }
 
+        if(NULL != task_to_add_parent_to)
+        {
+            SDL_RenderDrawLine(renderer, task_to_add_parent_to->pos_x + TASK_WIDGET_WIDTH / 2, task_to_add_parent_to->pos_y, nk_ctx->input.mouse.pos.x, nk_ctx->input.mouse.pos.y);
+        }
+        if(NULL != task_to_add_child_to)
+        {
+            SDL_RenderDrawLine(renderer, task_to_add_child_to->pos_x + TASK_WIDGET_WIDTH / 2, task_to_add_child_to->pos_y + TASK_WIDGET_HEIGHT, nk_ctx->input.mouse.pos.x, nk_ctx->input.mouse.pos.y);
+        }
+
         nk_sdl_render(NK_ANTI_ALIASING_ON);
 
         //draw nodes
@@ -181,13 +225,16 @@ int main()
         {
             struct task_t *task = tlist.data[i];
             SDL_Rect rect = {.w=10, .h=10};
+            /*
             rect.x = task->pos_x + TASK_WIDGET_WIDTH / 2;
+            rect.y = task->pos_y - 10;
+            */
+            rect.x = task->pos_x + TASK_WIDGET_WIDTH/2;
             rect.y = task->pos_y - 10;
             SDL_RenderFillRect(renderer, &rect);
             rect.y += TASK_WIDGET_HEIGHT + 10;
             SDL_RenderFillRect(renderer, &rect);
         }
-
         SDL_RenderPresent(renderer);
     }
 
