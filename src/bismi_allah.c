@@ -27,8 +27,8 @@
 #include "../submodules/task_tree_lib/include/task_t.h"
 #include "../submodules/task_tree_lib/include/tlist.h"
 
-#define TASK_WIDGET_WIDTH 230
-#define TASK_WIDGET_HEIGHT 250
+#define TASK_WIDGET_WIDTH 150
+#define TASK_WIDGET_HEIGHT 100
 
 int main()
 {
@@ -119,7 +119,7 @@ int main()
                 nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task_name_buffer, sizeof(tlist.data[0]->name), nk_filter_default);
                 
                 nk_layout_row_dynamic(nk_ctx, 30, 1);
-                if(nk_button_label(nk_ctx, "la ilaha illa Allah") && '\0' != task_name_buffer[0] && sizeof(tlist.data[0]->id) == task_tree_tlist_search_name(&tlist, task_name_buffer))
+                if(nk_button_label(nk_ctx, "la ilaha illa Allah") && '\0' != task_name_buffer[0])
                 {
                     task_tree_tlist_add_task(&tlist, task_tree_task_new(task_name_buffer));
                     task_tree_tlist_task_parents_id_list_add_id(&tlist, tlist.size - 1, 0);
@@ -135,11 +135,20 @@ int main()
             static char window_name_buffer[10] = {'\0'};
             window_name_buffer[0] = '\0';
             snprintf(window_name_buffer, sizeof(window_name_buffer), "task %d", task->id);
-            if(nk_begin(nk_ctx, window_name_buffer, nk_rect((float)task->pos_x, (float)task->pos_y, TASK_WIDGET_WIDTH, TASK_WIDGET_HEIGHT), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
+            if(nk_begin(nk_ctx, window_name_buffer, nk_rect((float)task->pos_x, (float)task->pos_y, TASK_WIDGET_WIDTH, TASK_WIDGET_HEIGHT), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
             {
                 nk_layout_row_dynamic(nk_ctx, 30, 1);
                 nk_edit_string_zero_terminated(nk_ctx, NK_EDIT_SIMPLE, task->name, sizeof(task->name), nk_filter_default);
                 //progress
+                nk_layout_row_dynamic(nk_ctx, 15, 1);
+                int progress = 0;
+                progress = task->progress;
+                nk_property_int(nk_ctx, "progress", 0, &progress, 100, 1, 5);
+                if(progress != task->progress)
+                {
+                    task_tree_tlist_task_set_progress(&tlist, task->id, progress);
+                }
+
                 //add child
 
                 //update the task's pos_x and pos_y
@@ -165,6 +174,19 @@ int main()
         }
 
         nk_sdl_render(NK_ANTI_ALIASING_ON);
+
+        //draw nodes
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        for(int i = 0; i < tlist.size; i++)
+        {
+            struct task_t *task = tlist.data[i];
+            SDL_Rect rect = {.w=10, .h=10};
+            rect.x = task->pos_x + TASK_WIDGET_WIDTH / 2;
+            rect.y = task->pos_y - 10;
+            SDL_RenderFillRect(renderer, &rect);
+            rect.y += TASK_WIDGET_HEIGHT + 10;
+            SDL_RenderFillRect(renderer, &rect);
+        }
 
         SDL_RenderPresent(renderer);
     }
