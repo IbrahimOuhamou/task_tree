@@ -204,17 +204,17 @@ int main()
             struct task_t *task = tlist.data[i];
             for(uint32_t i = 0; i < task->children_id_list_size; i++)
             {
-                SDL_RenderDrawLine(renderer, task->pos_x + TASK_WIDGET_WIDTH / 2, task->pos_y + TASK_WIDGET_HEIGHT, tlist.data[task->children_id_list[i]]->pos_x + TASK_WIDGET_WIDTH / 2, tlist.data[task->children_id_list[i]]->pos_y);
+                SDL_RenderDrawLine(renderer, task->pos_x + TASK_WIDGET_WIDTH / 2 + 5, task->pos_y + TASK_WIDGET_HEIGHT + 5, tlist.data[task->children_id_list[i]]->pos_x + TASK_WIDGET_WIDTH / 2 + 5, tlist.data[task->children_id_list[i]]->pos_y - 5);
             }
         }
 
         if(NULL != task_to_add_parent_to)
         {
-            SDL_RenderDrawLine(renderer, task_to_add_parent_to->pos_x + TASK_WIDGET_WIDTH / 2, task_to_add_parent_to->pos_y, nk_ctx->input.mouse.pos.x, nk_ctx->input.mouse.pos.y);
+            SDL_RenderDrawLine(renderer, task_to_add_parent_to->pos_x + TASK_WIDGET_WIDTH / 2 - 5, task_to_add_parent_to->pos_y + 5, nk_ctx->input.mouse.pos.x + 5, nk_ctx->input.mouse.pos.y - 5);
         }
         if(NULL != task_to_add_child_to)
         {
-            SDL_RenderDrawLine(renderer, task_to_add_child_to->pos_x + TASK_WIDGET_WIDTH / 2, task_to_add_child_to->pos_y + TASK_WIDGET_HEIGHT, nk_ctx->input.mouse.pos.x, nk_ctx->input.mouse.pos.y);
+            SDL_RenderDrawLine(renderer, task_to_add_child_to->pos_x + TASK_WIDGET_WIDTH / 2 - 5, task_to_add_child_to->pos_y + TASK_WIDGET_HEIGHT + 5, nk_ctx->input.mouse.pos.x + 5, nk_ctx->input.mouse.pos.y - 5);
         }
 
         nk_sdl_render(NK_ANTI_ALIASING_ON);
